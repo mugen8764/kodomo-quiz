@@ -147,34 +147,21 @@
   .opt-btn:disabled{cursor:default;}
   .opt-btn.correct{background:var(--correct); color:#fff; box-shadow:0 4px 0 var(--correct-dark);}
   .opt-btn.wrong{background:var(--wrong); color:#fff; box-shadow:0 4px 0 var(--wrong-dark);}
-  .opt-btn.glow{animation:glowPulse 0.9s ease-in-out infinite;}
-  @keyframes glowPulse{
-    0%,100%{box-shadow:0 4px 0 var(--correct-dark), 0 0 0px rgba(67,160,71,0.6);}
-    50%{box-shadow:0 4px 0 var(--correct-dark), 0 0 18px rgba(67,160,71,0.9);}
-  }
 
-  .sub-banner{
-    text-align:center;
-    background:#fff3cd;
-    border:2px dashed #e8b93a;
-    border-radius:16px;
-    padding:12px;
-    font-size:1.05rem;
-    font-weight:bold;
-    color:#7a5b00;
-  }
-  .next-btn{
+  .repeat-btn{
     min-height:60px;
-    border:none;
+    width:100%;
+    border:2px solid var(--primary);
     border-radius:18px;
-    background:var(--primary);
-    color:#fff;
-    font-size:1.15rem;
+    background:var(--chip);
+    color:var(--primary-dark);
+    font-size:1.1rem;
     font-weight:bold;
-    box-shadow:0 4px 0 var(--primary-dark);
+    box-shadow:0 3px 0 var(--primary);
     cursor:pointer;
   }
-  .next-btn:active{transform:translateY(3px); box-shadow:0 1px 0 var(--primary-dark);}
+  .repeat-btn:active{transform:translateY(3px); box-shadow:0 0px 0 var(--primary);}
+  .repeat-btn:disabled{opacity:0.4; cursor:default; box-shadow:0 3px 0 var(--primary);}
 
   .toast{
     position:fixed;
@@ -295,11 +282,9 @@
     </div>
 
     <div class="question-card" id="questionText"></div>
+    <button class="repeat-btn" id="repeatBtn" aria-label="もんだいぶんを もういちど きく">🔁 もういちど きく</button>
 
     <div class="options" id="optionsContainer"></div>
-
-    <div class="sub-banner" id="subBanner" style="display:none;"></div>
-    <button class="next-btn" id="nextBtn" style="display:none;">つぎへ ▶</button>
   </div>
 
   <!-- ================= 結果画面 ================= -->
@@ -329,30 +314,30 @@
   function opt(t, e, c){ return { t:t, e:e, c: !!c }; }
 
   var CHISHIKI = [
-    { q:"あかい くだものは なーんだ?", opts:[opt("りんご","🍎",true), opt("ばなな","🍌",false), opt("いちご","🍓",true)] },
-    { q:"そらを とぶものは なーんだ?", opts:[opt("とり","🐦",true), opt("ひこうき","✈️",true), opt("さかな","🐟",false)] },
+    { q:"あかい くだものは なーんだ?", opts:[opt("りんご","🍎",true), opt("ばなな","🍌",false), opt("めろん","🍈",false)] },
+    { q:"そらを とぶものは なーんだ?", opts:[opt("とり","🐦",true), opt("ふね","⛵",false), opt("さかな","🐟",false)] },
     { q:"わんわん と なく どうぶつは なーんだ?", opts:[opt("いぬ","🐶",true), opt("ねこ","🐱",false), opt("うし","🐮",false)] },
-    { q:"きいろい くだものは なーんだ?", opts:[opt("ばなな","🍌",true), opt("れもん","🍋",true), opt("いちご","🍓",false)] },
-    { q:"うみに いる いきものは なーんだ?", opts:[opt("さかな","🐟",true), opt("くじら","🐳",true), opt("うさぎ","🐰",false)] },
-    { q:"そらを とぶ むしは なーんだ?", opts:[opt("ちょう","🦋",true), opt("はち","🐝",true), opt("あり","🐜",false)] },
-    { q:"ひとが のって うごく のりものは なーんだ?", opts:[opt("くるま","🚗",true), opt("でんしゃ","🚃",true), opt("いぬ","🐶",false)] },
-    { q:"みずの なかを およぐ いきものは なーんだ?", opts:[opt("さかな","🐟",true), opt("かめ","🐢",true), opt("とり","🐦",false)] },
+    { q:"きいろい くだものは なーんだ?", opts:[opt("ばなな","🍌",true), opt("ぶどう","🍇",false), opt("いちご","🍓",false)] },
+    { q:"うみに いる いきものは なーんだ?", opts:[opt("さかな","🐟",true), opt("うま","🐴",false), opt("うさぎ","🐰",false)] },
+    { q:"そらを とぶ むしは なーんだ?", opts:[opt("ちょう","🦋",true), opt("くも","🕷️",false), opt("あり","🐜",false)] },
+    { q:"ひとが のって うごく のりものは なーんだ?", opts:[opt("くるま","🚗",true), opt("ほん","📖",false), opt("いぬ","🐶",false)] },
+    { q:"みずの なかを およぐ いきものは なーんだ?", opts:[opt("さかな","🐟",true), opt("うさぎ","🐰",false), opt("とり","🐦",false)] },
     { q:"あかい やさいは なーんだ?", opts:[opt("とまと","🍅",true), opt("なす","🍆",false), opt("きゅうり","🥒",false)] },
-    { q:"あまくて おいしい くだものは なーんだ?", opts:[opt("りんご","🍎",true), opt("ぶどう","🍇",true), opt("にんじん","🥕",false)] },
+    { q:"あまくて おいしい くだものは なーんだ?", opts:[opt("りんご","🍎",true), opt("たまねぎ","🧅",false), opt("にんじん","🥕",false)] },
     { q:"しろと くろで ささが だいすきな どうぶつは なーんだ?", opts:[opt("ぱんだ","🐼",true), opt("くるま","🚗",false), opt("とけい","⌚",false)] },
-    { q:"みどりいろの やさいは なーんだ?", opts:[opt("きゅうり","🥒",true), opt("ぴーまん","🫑",true), opt("にんじん","🥕",false)] },
-    { q:"おそらに あるものは なーんだ?", opts:[opt("たいよう","☀️",true), opt("つき","🌙",true), opt("はな","🌸",false)] },
-    { q:"あめの ひに つかうものは なーんだ?", opts:[opt("かさ","☂️",true), opt("ながぐつ","👢",true), opt("ぼうし","🎩",false)] },
+    { q:"みどりいろの やさいは なーんだ?", opts:[opt("きゅうり","🥒",true), opt("とまと","🍅",false), opt("にんじん","🥕",false)] },
+    { q:"おそらに あるものは なーんだ?", opts:[opt("たいよう","☀️",true), opt("くつ","👟",false), opt("はな","🌸",false)] },
+    { q:"あめの ひに つかうものは なーんだ?", opts:[opt("かさ","☂️",true), opt("めがね","👓",false), opt("ぼうし","🎩",false)] },
     { q:"にゃーにゃー と なく どうぶつは なーんだ?", opts:[opt("ねこ","🐱",true), opt("いぬ","🐶",false), opt("とり","🐦",false)] },
     { q:"むらさきいろの やさいは なーんだ?", opts:[opt("なす","🍆",true), opt("にんじん","🥕",false), opt("とうもろこし","🌽",false)] },
-    { q:"からだが おおきい どうぶつは なーんだ?", opts:[opt("ぞう","🐘",true), opt("くじら","🐳",true), opt("ねずみ","🐭",false)] },
+    { q:"からだが おおきい どうぶつは なーんだ?", opts:[opt("ぞう","🐘",true), opt("ねこ","🐱",false), opt("ねずみ","🐭",false)] },
     { q:"からだが ちいさい どうぶつは なーんだ?", opts:[opt("ねずみ","🐭",true), opt("ぞう","🐘",false), opt("きりん","🦒",false)] },
     { q:"くびが ながい どうぶつは なーんだ?", opts:[opt("きりん","🦒",true), opt("ぶた","🐷",false), opt("かえる","🐸",false)] },
-    { q:"みずべに いる いきものは なーんだ?", opts:[opt("かえる","🐸",true), opt("あひる","🦆",true), opt("らいおん","🦁",false)] },
+    { q:"みずべに いる いきものは なーんだ?", opts:[opt("かえる","🐸",true), opt("きつね","🦊",false), opt("らいおん","🦁",false)] },
     { q:"ゆきが ふる きせつは なーんだ?", opts:[opt("ふゆ","❄️",true), opt("なつ","☀️",false), opt("はる","🌸",false)] },
     { q:"あつい きせつは なーんだ?", opts:[opt("なつ","☀️",true), opt("ふゆ","❄️",false), opt("あき","🍁",false)] },
-    { q:"よるに おそらに でるものは なーんだ?", opts:[opt("つき","🌙",true), opt("ほし","⭐",true), opt("たいよう","☀️",false)] },
-    { q:"しまもようの どうぶつは なーんだ?", opts:[opt("しまうま","🦓",true), opt("とら","🐯",true), opt("ぱんだ","🐼",false)] },
+    { q:"よるに おそらに でるものは なーんだ?", opts:[opt("つき","🌙",true), opt("とり","🐦",false), opt("たいよう","☀️",false)] },
+    { q:"しまもようの どうぶつは なーんだ?", opts:[opt("しまうま","🦓",true), opt("くま","🐻",false), opt("ぱんだ","🐼",false)] },
     { q:"みみが ながい どうぶつは なーんだ?", opts:[opt("うさぎ","🐰",true), opt("ねこ","🐱",false), opt("いぬ","🐶",false)] }
   ].map(function(x){ return { cat:"chishiki", q:x.q, opts:x.opts }; });
 
@@ -480,10 +465,17 @@
   $('soundBtn').addEventListener('click', function(){
     soundOn = !soundOn;
     $('soundBtn').textContent = soundOn ? '🔊' : '🔇';
+    // ミュート中は「もういちど きく」を押せない見た目にして、無反応の戸惑いを防ぐ
+    $('repeatBtn').disabled = !soundOn;
   });
 
   $('playAgainBtn').addEventListener('click', function(){
     showScreen('screen-start');
+  });
+
+  $('repeatBtn').addEventListener('click', function(){
+    var qObj = state.quiz[state.index];
+    if(qObj) speak(qObj.q);
   });
 
   // ------------------------------------------------------------------
@@ -510,8 +502,6 @@
 
     $('progressText').textContent = (state.index + 1) + 'もんめ / ' + total;
     $('questionText').textContent = qObj.q;
-    $('subBanner').style.display = 'none';
-    $('nextBtn').style.display = 'none';
 
     var container = $('optionsContainer');
     container.innerHTML = '';
@@ -553,22 +543,7 @@
       if(!state.curWrongUsed){ state.firstTryCorrectCount++; }
       speak('せいかい');
       playCorrectOverlay(function(){
-        var others = [];
-        qObj.opts.forEach(function(o, i){ if(o.c && i !== idx) others.push(i); });
-        if(others.length > 0){
-          others.forEach(function(i){ btns[i].classList.add('correct', 'glow'); });
-          var banner = $('subBanner');
-          banner.textContent = 'ほかにも こたえが あるよ!';
-          banner.style.display = 'block';
-          var nextBtn = $('nextBtn');
-          nextBtn.style.display = 'block';
-          nextBtn.onclick = function(){
-            nextBtn.onclick = null;
-            advance();
-          };
-        } else {
-          setTimeout(advance, 350);
-        }
+        setTimeout(advance, 350);
       });
     } else {
       btn.classList.add('wrong');
